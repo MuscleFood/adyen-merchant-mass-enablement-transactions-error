@@ -4,6 +4,9 @@ const dotenv = require("dotenv");
 const morgan = require("morgan");
 const { uuid } = require("uuidv4");
 const { Client, Config, CheckoutAPI } = require("@adyen/api-library");
+const { Http2ServerRequest } = require("http2");
+const fs = require('fs');
+const https = require('https');
 
 // init app
 const app = express();
@@ -188,4 +191,18 @@ function findCurrency(type) {
 
 // Start server
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+const HOST = 'localhost';
+// app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+
+var privKey = fs.readFileSync('key.pem');
+var cert = fs.readFileSync('cert.pem');
+
+const options = { key: privKey, cert: cert }
+
+https.createServer(options, app).listen(PORT, HOST, async err => {
+    if (err) {
+        return console.log('>>>> ', err.message);
+    }
+
+    console.log('>>>> ', 'https://', HOST, PORT);
+});

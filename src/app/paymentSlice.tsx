@@ -1,4 +1,48 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { CoreOptions } from '@adyen/adyen-web/dist/types/core/types';
+
+const config: CoreOptions = {
+  paymentMethodsConfiguration: {
+    ideal: {
+      showImage: true,
+    },
+    card: {
+      hasHolderName: true,
+      holderNameRequired: true,
+      name: "Credit or debit card",
+      amount: {
+        value: 1000, // 10€ in minor units
+        currency: "EUR",
+      },
+    },
+    applepay: {
+      amount: {
+          value: 1000,
+          currency: 'GBP',
+      },
+      countryCode: 'GB',
+      onSubmit: () => { console.log('>>> onSubmit!!') },
+      //onValidateMerchant: () => { console.log('>>> onValidateMerchant!!')},
+      //onError: () => { console.log('>>> onError!!')},
+      buttonType: 'buy',
+      totalPriceLabel: 'test',
+      //merchantCapabilities: ["supports3DS"],
+      //supportedNetworks: ["masterCard", "visa", "amex"],
+      //totalPriceStatus: "final",
+      //version: 4
+      //configuration: {
+      //    merchantId: 'merchant.com.adyen.musclefood.test',
+      //    merchantName: 'MuscleFood',
+      //},
+    },
+  },
+  locale: "en_US",
+  showPayButton: true,
+  clientKey: process.env.REACT_APP_CLIENT_KEY,
+  environment: "test",
+};
+
+console.log('>>> ', JSON.stringify(config));
 
 export const slice = createSlice({
   name: "payment",
@@ -7,26 +51,7 @@ export const slice = createSlice({
     paymentMethodsRes: null,
     paymentRes: null,
     paymentDetailsRes: null,
-    config: {
-      paymentMethodsConfiguration: {
-        ideal: {
-          showImage: true,
-        },
-        card: {
-          hasHolderName: true,
-          holderNameRequired: true,
-          name: "Credit or debit card",
-          amount: {
-            value: 1000, // 10€ in minor units
-            currency: "EUR",
-          },
-        },
-      },
-      locale: "en_US",
-      showPayButton: true,
-      clientKey: process.env.REACT_APP_CLIENT_KEY,
-      environment: "test",
-    },
+    config: config,
   },
   reducers: {
     paymentMethods: (state, action) => {
@@ -35,7 +60,7 @@ export const slice = createSlice({
         state.error = res;
       } else {
         res.paymentMethods = res.paymentMethods.filter((it) =>
-          ["eps", "scheme", "dotpay", "giropay", "ideal", "directEbanking", "bcmc", "paysafecard"].includes(it.type)
+          ["eps", "scheme", "dotpay", "giropay", "ideal", "directEbanking", "bcmc", "paysafecard", "applepay"].includes(it.type)
         );
         state.paymentMethodsRes = res;
       }
